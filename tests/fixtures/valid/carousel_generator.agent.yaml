@@ -1,0 +1,114 @@
+spec_version: "1.0.1"
+minimum_dialekt_version: "1.0.0"
+
+metadata:
+  id: "2c4d5e6f-7890-1234-5678-abcdef567890"
+  name: "Instagram Carousel Generator"
+  description: "Creates multi-slide Instagram carousels as PNG images"
+  version: "1.0.0"
+  author:
+    name: "Yerzhan Kasymov"
+    email: "yerzhan@halyk.kz"
+  created_at: "2026-04-22T11:00:00+06:00"
+  updated_at: "2026-04-22T11:00:00+06:00"
+  tags: ["marketing", "social-media", "creative"]
+  icon: "🎨"
+  ui:
+    primary_action_label: "Создать карусель"
+
+model:
+  preferred: "llama3.1:70b"
+  acceptable:
+    - "mistral-nemo:12b"
+  min_context_window: 8192
+  requirements:
+    min_ram_gb: 48
+    min_vram_gb: 0
+    recommended_ram_gb: 64
+  parameters:
+    temperature: 0.8
+    top_p: 0.95
+    max_tokens: 4096
+
+system_prompt: |
+  Ты креативный маркетолог-копирайтер для {{brand_name}}.
+  Tone of voice: {{brand_tone}}
+
+  Задача: создать многостраничную карусель для Instagram.
+
+  Для каждого слайда:
+  1. Заголовок (до 50 символов)
+  2. Основной текст (до 150 символов)
+  3. Стиль оформления (цвета, шрифт)
+
+  Финальный output — HTML/CSS для каждого слайда, который можно
+  отрендерить в PNG 1080x1080.
+
+variables:
+  brand_name:
+    type: string
+    required: true
+  brand_tone:
+    type: string
+    required: true
+
+capabilities:
+  groups:
+    - filesystem_write
+  exceptions: []
+
+autonomy:
+  recommended: "ask-before-write"
+  max_allowed: "autonomous"
+
+input:
+  type: "form"
+  fields:
+    - name: "topic"
+      label: "Тема карусели"
+      type: "text"
+      required: true
+      max_length: 200
+
+    - name: "description"
+      label: "Детальное описание"
+      type: "textarea"
+      required: false
+      max_length: 2000
+
+    - name: "slides_count"
+      label: "Количество слайдов"
+      type: "number"
+      required: true
+      min: 3
+      max: 10
+      default: 5
+
+    - name: "tone_override"
+      label: "Переопределить tone"
+      type: "dropdown"
+      required: false
+      options: ["formal", "casual", "inspiring", "educational", "default"]
+      default: "default"
+
+    - name: "add_cta"
+      label: "Добавить call-to-action"
+      type: "checkbox"
+      default: true
+
+    - name: "reference_image"
+      label: "Референсное изображение"
+      type: "file"
+      accept: [".jpg", ".jpeg", ".png"]
+      max_size_mb: 5
+
+output:
+  format: "file"
+  streaming: false
+  destination:
+    type: "filesystem"
+    path: "{user_home}/Desktop/carousels/{date}-carousel.png"
+    overwrite: false
+
+trigger:
+  type: "interactive"

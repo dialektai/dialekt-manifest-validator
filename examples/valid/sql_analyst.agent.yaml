@@ -1,0 +1,91 @@
+spec_version: "1.0.1"
+minimum_dialekt_version: "1.0.0"
+
+metadata:
+  id: "7f3a8b2c-1234-4567-8901-abcdef012345"
+  name: "SQL Analyst: Sales"
+  description: "Natural language to SQL for sales analytics"
+  version: "1.0.0"
+  author:
+    name: "Yerzhan Kasymov"
+    email: "yerzhan@halyk.kz"
+  created_at: "2026-04-22T10:00:00+06:00"
+  updated_at: "2026-04-22T10:00:00+06:00"
+  tags: ["sql", "analytics", "sales"]
+  icon: "📊"
+  language: "multi"
+  ui:
+    primary_action_label: "Проанализировать"
+
+model:
+  preferred: "qwen2.5-coder:32b"
+  acceptable:
+    - "qwen2.5-coder:14b"
+  min_context_window: 32000
+  requirements:
+    min_ram_gb: 24
+    min_vram_gb: 0
+    recommended_ram_gb: 32
+  parameters:
+    temperature: 0.2
+    top_p: 0.9
+    max_tokens: 4096
+
+system_prompt: |
+  Ты опытный SQL-аналитик для отдела продаж {{company_name}}.
+  Отвечай на языке пользователя (русский, английский, казахский).
+
+  Работаешь с таблицами: {{table_list}}
+
+  Правила:
+  1. Всегда показывай SQL-запрос перед выполнением
+  2. Объясняй логику запроса простыми словами
+  3. Только SELECT-запросы
+  4. Если вопрос неоднозначный — задай уточняющий вопрос
+  5. Результаты форматируй как таблицу
+
+variables:
+  company_name:
+    type: string
+    required: true
+    description: "Название компании"
+  table_list:
+    type: string
+    required: true
+    description: "Список таблиц через запятую"
+
+environments:
+  halyk_sales:
+    company_name: "Halyk Bank"
+    table_list: "sales_transactions, sales_customers, sales_products"
+
+capabilities:
+  groups:
+    - database_read
+  exceptions:
+    - "deny: database_write:*"
+
+connections:
+  required:
+    - type: postgres
+      role: "readonly"
+      database_category: "analytics"
+      purpose: "Reading sales data"
+      required_permissions: ["SELECT"]
+
+autonomy:
+  recommended: "ask-before-write"
+  max_allowed: "ask-before-write"
+
+input:
+  type: "chat"
+  placeholder: "Например: сколько продаж было в прошлом месяце?"
+
+output:
+  format: "table"
+  streaming: true
+  destination:
+    type: "notification"
+
+trigger:
+  type: "interactive"

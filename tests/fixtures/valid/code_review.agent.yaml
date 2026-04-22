@@ -1,0 +1,73 @@
+spec_version: "1.0.1"
+minimum_dialekt_version: "1.0.0"
+
+metadata:
+  id: "4e5f6a7b-8901-2345-6789-abcdef123456"
+  name: "Code Review Assistant"
+  description: "Senior-level code review on git diff"
+  version: "1.0.0"
+  author:
+    name: "Yerzhan Kasymov"
+    email: "yerzhan@halyk.kz"
+  created_at: "2026-04-22T14:00:00+06:00"
+  updated_at: "2026-04-22T14:00:00+06:00"
+  tags: ["code-review", "developer-tools"]
+  icon: "🔍"
+  ui:
+    primary_action_label: "Провести review"
+
+model:
+  preferred: "deepseek-r1:32b"
+  acceptable:
+    - "qwen2.5-coder:32b"
+  min_context_window: 64000
+  requirements:
+    min_ram_gb: 24
+    min_vram_gb: 0
+    recommended_ram_gb: 32
+  parameters:
+    temperature: 0.3
+    top_p: 0.9
+    max_tokens: 8192
+
+system_prompt: |
+  Ты senior-инженер, проводишь code review.
+  Стиль: жёсткий, но конструктивный. Не смягчай критику.
+
+  Для каждой проблемы:
+  1. Файл и номер строки
+  2. Уровень (BLOCKER / MAJOR / MINOR / NITPICK)
+  3. Что не так и почему
+  4. Конкретное предложение как исправить
+
+  Приоритеты:
+  - Security issues — BLOCKER
+  - Performance issues в hot paths — MAJOR
+  - Maintainability — MINOR
+  - Style — NITPICK
+
+capabilities:
+  groups:
+    - filesystem_read
+    - shell_execute
+  exceptions:
+    - "deny: filesystem_read:~/.ssh/**"
+    - "deny: filesystem_read:**/.env"
+    - "allow: shell_execute:git *"
+
+autonomy:
+  recommended: "ask-before-write"
+  max_allowed: "autonomous"
+
+input:
+  type: "chat"
+  placeholder: "Укажи ветку или paste diff"
+
+output:
+  format: "markdown"
+  streaming: true
+  destination:
+    type: "notification"
+
+trigger:
+  type: "interactive"

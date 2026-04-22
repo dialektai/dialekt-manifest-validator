@@ -1,0 +1,77 @@
+spec_version: "1.0.1"
+minimum_dialekt_version: "1.0.0"
+
+metadata:
+  id: "9a8b7c6d-5432-1098-7654-fedcba098765"
+  name: "Daily Sales Report"
+  description: "Generates Excel sales report every morning at 9 AM"
+  version: "1.0.0"
+  author:
+    name: "Yerzhan Kasymov"
+    email: "yerzhan@halyk.kz"
+  created_at: "2026-04-22T09:00:00+06:00"
+  updated_at: "2026-04-22T09:00:00+06:00"
+  tags: ["reports", "finance", "scheduled"]
+  icon: "📈"
+
+model:
+  preferred: "mistral-nemo:12b"
+  acceptable:
+    - "qwen2.5-coder:14b"
+  min_context_window: 16000
+  requirements:
+    min_ram_gb: 16
+    min_vram_gb: 0
+    recommended_ram_gb: 24
+  parameters:
+    temperature: 0.1
+    top_p: 0.9
+    max_tokens: 8192
+
+system_prompt: |
+  Ты финансовый аналитик. Твоя задача — сгенерировать ежедневный
+  отчёт по продажам в формате Excel.
+
+  Структура отчёта:
+  1. Sheet 1: Сводка (total revenue, transactions count, avg check)
+  2. Sheet 2: По категориям продуктов
+  3. Sheet 3: По регионам
+  4. Sheet 4: Топ-10 клиентов
+
+  Сравнение с предыдущим днём, неделей, месяцем.
+
+capabilities:
+  groups:
+    - database_read
+    - filesystem_write
+  exceptions:
+    - "deny: database_write:*"
+
+connections:
+  required:
+    - type: postgres
+      role: "readonly"
+      database_category: "analytics"
+      purpose: "Reading sales data for reports"
+      required_permissions: ["SELECT"]
+
+autonomy:
+  recommended: "autonomous"
+  max_allowed: "autonomous"
+
+input:
+  type: "no-input"
+
+output:
+  format: "file"
+  streaming: false
+  destination:
+    type: "filesystem"
+    path: "{user_home}/Reports/sales/{date}-daily-sales.xlsx"
+    overwrite: false
+
+trigger:
+  type: "scheduled"
+  schedule: "0 9 * * *"
+  timezone: "Asia/Almaty"
+  missed_run_policy: "run_on_startup"

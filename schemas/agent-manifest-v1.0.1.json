@@ -1,0 +1,1299 @@
+{
+  "$defs": {
+    "Author": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "email": {
+          "title": "Email",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "email"
+      ],
+      "title": "Author",
+      "type": "object"
+    },
+    "Autonomy": {
+      "additionalProperties": false,
+      "properties": {
+        "recommended": {
+          "title": "Recommended",
+          "type": "string"
+        },
+        "max_allowed": {
+          "title": "Max Allowed",
+          "type": "string"
+        }
+      },
+      "required": [
+        "recommended",
+        "max_allowed"
+      ],
+      "title": "Autonomy",
+      "type": "object"
+    },
+    "Capabilities": {
+      "additionalProperties": false,
+      "properties": {
+        "groups": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Groups",
+          "type": "array"
+        },
+        "exceptions": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Exceptions",
+          "type": "array"
+        }
+      },
+      "required": [
+        "groups"
+      ],
+      "title": "Capabilities",
+      "type": "object"
+    },
+    "ChatInput": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "chat",
+          "title": "Type",
+          "type": "string"
+        },
+        "placeholder": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Placeholder"
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "title": "ChatInput",
+      "type": "object"
+    },
+    "CheckboxField": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "label": {
+          "minLength": 1,
+          "title": "Label",
+          "type": "string"
+        },
+        "required": {
+          "default": false,
+          "title": "Required",
+          "type": "boolean"
+        },
+        "type": {
+          "const": "checkbox",
+          "title": "Type",
+          "type": "string"
+        },
+        "default": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Default"
+        }
+      },
+      "required": [
+        "name",
+        "label",
+        "type"
+      ],
+      "title": "CheckboxField",
+      "type": "object"
+    },
+    "Connection": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "title": "Type",
+          "type": "string"
+        },
+        "role": {
+          "title": "Role",
+          "type": "string"
+        },
+        "purpose": {
+          "minLength": 1,
+          "title": "Purpose",
+          "type": "string"
+        },
+        "database_category": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Database Category"
+        },
+        "required_permissions": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Required Permissions"
+        },
+        "server": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Server"
+        }
+      },
+      "required": [
+        "type",
+        "role",
+        "purpose"
+      ],
+      "title": "Connection",
+      "type": "object"
+    },
+    "Connections": {
+      "additionalProperties": false,
+      "properties": {
+        "required": {
+          "items": {
+            "$ref": "#/$defs/Connection"
+          },
+          "title": "Required",
+          "type": "array"
+        }
+      },
+      "title": "Connections",
+      "type": "object"
+    },
+    "DateField": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "label": {
+          "minLength": 1,
+          "title": "Label",
+          "type": "string"
+        },
+        "required": {
+          "default": false,
+          "title": "Required",
+          "type": "boolean"
+        },
+        "type": {
+          "const": "date",
+          "title": "Type",
+          "type": "string"
+        },
+        "default": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Default"
+        }
+      },
+      "required": [
+        "name",
+        "label",
+        "type"
+      ],
+      "title": "DateField",
+      "type": "object"
+    },
+    "DropdownField": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "label": {
+          "minLength": 1,
+          "title": "Label",
+          "type": "string"
+        },
+        "required": {
+          "default": false,
+          "title": "Required",
+          "type": "boolean"
+        },
+        "type": {
+          "const": "dropdown",
+          "title": "Type",
+          "type": "string"
+        },
+        "options": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Options",
+          "type": "array"
+        },
+        "default": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Default"
+        }
+      },
+      "required": [
+        "name",
+        "label",
+        "type",
+        "options"
+      ],
+      "title": "DropdownField",
+      "type": "object"
+    },
+    "EmailOrTelegramDestination": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "email_or_telegram",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "title": "EmailOrTelegramDestination",
+      "type": "object"
+    },
+    "FileField": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "label": {
+          "minLength": 1,
+          "title": "Label",
+          "type": "string"
+        },
+        "required": {
+          "default": false,
+          "title": "Required",
+          "type": "boolean"
+        },
+        "type": {
+          "const": "file",
+          "title": "Type",
+          "type": "string"
+        },
+        "accept": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Accept"
+        },
+        "max_size_mb": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Size Mb"
+        }
+      },
+      "required": [
+        "name",
+        "label",
+        "type"
+      ],
+      "title": "FileField",
+      "type": "object"
+    },
+    "FilesystemDestination": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "filesystem",
+          "title": "Type",
+          "type": "string"
+        },
+        "path": {
+          "title": "Path",
+          "type": "string"
+        },
+        "overwrite": {
+          "default": false,
+          "title": "Overwrite",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "type",
+        "path"
+      ],
+      "title": "FilesystemDestination",
+      "type": "object"
+    },
+    "FormInput": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "form",
+          "title": "Type",
+          "type": "string"
+        },
+        "fields": {
+          "items": {
+            "discriminator": {
+              "mapping": {
+                "checkbox": "#/$defs/CheckboxField",
+                "date": "#/$defs/DateField",
+                "dropdown": "#/$defs/DropdownField",
+                "file": "#/$defs/FileField",
+                "multi-select": "#/$defs/MultiSelectField",
+                "number": "#/$defs/NumberField",
+                "text": "#/$defs/TextField",
+                "textarea": "#/$defs/TextareaField",
+                "url": "#/$defs/UrlField"
+              },
+              "propertyName": "type"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/$defs/TextField"
+              },
+              {
+                "$ref": "#/$defs/TextareaField"
+              },
+              {
+                "$ref": "#/$defs/NumberField"
+              },
+              {
+                "$ref": "#/$defs/DropdownField"
+              },
+              {
+                "$ref": "#/$defs/CheckboxField"
+              },
+              {
+                "$ref": "#/$defs/MultiSelectField"
+              },
+              {
+                "$ref": "#/$defs/DateField"
+              },
+              {
+                "$ref": "#/$defs/FileField"
+              },
+              {
+                "$ref": "#/$defs/UrlField"
+              }
+            ]
+          },
+          "title": "Fields",
+          "type": "array"
+        }
+      },
+      "required": [
+        "type",
+        "fields"
+      ],
+      "title": "FormInput",
+      "type": "object"
+    },
+    "InteractiveTrigger": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "interactive",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "title": "InteractiveTrigger",
+      "type": "object"
+    },
+    "Metadata": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "name": {
+          "maxLength": 80,
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "maxLength": 500,
+          "title": "Description",
+          "type": "string"
+        },
+        "version": {
+          "title": "Version",
+          "type": "string"
+        },
+        "author": {
+          "$ref": "#/$defs/Author"
+        },
+        "created_at": {
+          "title": "Created At",
+          "type": "string"
+        },
+        "updated_at": {
+          "title": "Updated At",
+          "type": "string"
+        },
+        "tags": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tags"
+        },
+        "icon": {
+          "anyOf": [
+            {
+              "maxLength": 10,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Icon"
+        },
+        "language": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Language"
+        },
+        "ui": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/UIConfig"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "description",
+        "version",
+        "author",
+        "created_at",
+        "updated_at"
+      ],
+      "title": "Metadata",
+      "type": "object"
+    },
+    "ModelConfig": {
+      "additionalProperties": false,
+      "properties": {
+        "preferred": {
+          "minLength": 1,
+          "title": "Preferred",
+          "type": "string"
+        },
+        "acceptable": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Acceptable"
+        },
+        "min_context_window": {
+          "exclusiveMinimum": 0,
+          "title": "Min Context Window",
+          "type": "integer"
+        },
+        "requirements": {
+          "$ref": "#/$defs/ModelRequirements"
+        },
+        "parameters": {
+          "$ref": "#/$defs/ModelParameters"
+        }
+      },
+      "required": [
+        "preferred",
+        "min_context_window",
+        "requirements",
+        "parameters"
+      ],
+      "title": "ModelConfig",
+      "type": "object"
+    },
+    "ModelParameters": {
+      "additionalProperties": false,
+      "properties": {
+        "temperature": {
+          "maximum": 2.0,
+          "minimum": 0.0,
+          "title": "Temperature",
+          "type": "number"
+        },
+        "top_p": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Top P",
+          "type": "number"
+        },
+        "max_tokens": {
+          "exclusiveMinimum": 0,
+          "title": "Max Tokens",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "temperature",
+        "top_p",
+        "max_tokens"
+      ],
+      "title": "ModelParameters",
+      "type": "object"
+    },
+    "ModelRequirements": {
+      "additionalProperties": false,
+      "properties": {
+        "min_ram_gb": {
+          "minimum": 0,
+          "title": "Min Ram Gb",
+          "type": "integer"
+        },
+        "min_vram_gb": {
+          "minimum": 0,
+          "title": "Min Vram Gb",
+          "type": "integer"
+        },
+        "recommended_ram_gb": {
+          "minimum": 0,
+          "title": "Recommended Ram Gb",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "min_ram_gb",
+        "min_vram_gb",
+        "recommended_ram_gb"
+      ],
+      "title": "ModelRequirements",
+      "type": "object"
+    },
+    "MultiSelectField": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "label": {
+          "minLength": 1,
+          "title": "Label",
+          "type": "string"
+        },
+        "required": {
+          "default": false,
+          "title": "Required",
+          "type": "boolean"
+        },
+        "type": {
+          "const": "multi-select",
+          "title": "Type",
+          "type": "string"
+        },
+        "options": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Options",
+          "type": "array"
+        },
+        "default": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Default"
+        }
+      },
+      "required": [
+        "name",
+        "label",
+        "type",
+        "options"
+      ],
+      "title": "MultiSelectField",
+      "type": "object"
+    },
+    "NoInput": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "no-input",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "title": "NoInput",
+      "type": "object"
+    },
+    "NotificationDestination": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "notification",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "title": "NotificationDestination",
+      "type": "object"
+    },
+    "NumberField": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "label": {
+          "minLength": 1,
+          "title": "Label",
+          "type": "string"
+        },
+        "required": {
+          "default": false,
+          "title": "Required",
+          "type": "boolean"
+        },
+        "type": {
+          "const": "number",
+          "title": "Type",
+          "type": "string"
+        },
+        "min": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Min"
+        },
+        "max": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max"
+        },
+        "default": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Default"
+        }
+      },
+      "required": [
+        "name",
+        "label",
+        "type"
+      ],
+      "title": "NumberField",
+      "type": "object"
+    },
+    "Output": {
+      "additionalProperties": false,
+      "properties": {
+        "format": {
+          "title": "Format",
+          "type": "string"
+        },
+        "streaming": {
+          "default": true,
+          "title": "Streaming",
+          "type": "boolean"
+        },
+        "destination": {
+          "discriminator": {
+            "mapping": {
+              "email_or_telegram": "#/$defs/EmailOrTelegramDestination",
+              "filesystem": "#/$defs/FilesystemDestination",
+              "notification": "#/$defs/NotificationDestination",
+              "webhook": "#/$defs/WebhookDestination"
+            },
+            "propertyName": "type"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/NotificationDestination"
+            },
+            {
+              "$ref": "#/$defs/FilesystemDestination"
+            },
+            {
+              "$ref": "#/$defs/WebhookDestination"
+            },
+            {
+              "$ref": "#/$defs/EmailOrTelegramDestination"
+            }
+          ],
+          "title": "Destination"
+        }
+      },
+      "required": [
+        "format",
+        "destination"
+      ],
+      "title": "Output",
+      "type": "object"
+    },
+    "ScheduledTrigger": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "scheduled",
+          "title": "Type",
+          "type": "string"
+        },
+        "schedule": {
+          "title": "Schedule",
+          "type": "string"
+        },
+        "timezone": {
+          "title": "Timezone",
+          "type": "string"
+        },
+        "missed_run_policy": {
+          "default": "run_on_startup",
+          "title": "Missed Run Policy",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "schedule",
+        "timezone"
+      ],
+      "title": "ScheduledTrigger",
+      "type": "object"
+    },
+    "SecretRequirement": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "required": {
+          "default": true,
+          "title": "Required",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "description"
+      ],
+      "title": "SecretRequirement",
+      "type": "object"
+    },
+    "TextField": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "label": {
+          "minLength": 1,
+          "title": "Label",
+          "type": "string"
+        },
+        "required": {
+          "default": false,
+          "title": "Required",
+          "type": "boolean"
+        },
+        "type": {
+          "const": "text",
+          "title": "Type",
+          "type": "string"
+        },
+        "max_length": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Length"
+        },
+        "default": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Default"
+        }
+      },
+      "required": [
+        "name",
+        "label",
+        "type"
+      ],
+      "title": "TextField",
+      "type": "object"
+    },
+    "TextareaField": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "label": {
+          "minLength": 1,
+          "title": "Label",
+          "type": "string"
+        },
+        "required": {
+          "default": false,
+          "title": "Required",
+          "type": "boolean"
+        },
+        "type": {
+          "const": "textarea",
+          "title": "Type",
+          "type": "string"
+        },
+        "max_length": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Length"
+        },
+        "default": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Default"
+        }
+      },
+      "required": [
+        "name",
+        "label",
+        "type"
+      ],
+      "title": "TextareaField",
+      "type": "object"
+    },
+    "UIConfig": {
+      "additionalProperties": false,
+      "properties": {
+        "primary_action_label": {
+          "anyOf": [
+            {
+              "maxLength": 30,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Primary Action Label"
+        }
+      },
+      "title": "UIConfig",
+      "type": "object"
+    },
+    "UrlField": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "label": {
+          "minLength": 1,
+          "title": "Label",
+          "type": "string"
+        },
+        "required": {
+          "default": false,
+          "title": "Required",
+          "type": "boolean"
+        },
+        "type": {
+          "const": "url",
+          "title": "Type",
+          "type": "string"
+        },
+        "default": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Default"
+        }
+      },
+      "required": [
+        "name",
+        "label",
+        "type"
+      ],
+      "title": "UrlField",
+      "type": "object"
+    },
+    "Variable": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "title": "Type",
+          "type": "string"
+        },
+        "required": {
+          "default": true,
+          "title": "Required",
+          "type": "boolean"
+        },
+        "description": {
+          "default": "",
+          "title": "Description",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "title": "Variable",
+      "type": "object"
+    },
+    "WebhookDestination": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "webhook",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "title": "WebhookDestination",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "spec_version": {
+      "title": "Spec Version",
+      "type": "string"
+    },
+    "minimum_dialekt_version": {
+      "title": "Minimum Dialekt Version",
+      "type": "string"
+    },
+    "metadata": {
+      "$ref": "#/$defs/Metadata"
+    },
+    "model": {
+      "$ref": "#/$defs/ModelConfig"
+    },
+    "system_prompt": {
+      "minLength": 1,
+      "title": "System Prompt",
+      "type": "string"
+    },
+    "capabilities": {
+      "$ref": "#/$defs/Capabilities"
+    },
+    "autonomy": {
+      "$ref": "#/$defs/Autonomy"
+    },
+    "input": {
+      "discriminator": {
+        "mapping": {
+          "chat": "#/$defs/ChatInput",
+          "form": "#/$defs/FormInput",
+          "no-input": "#/$defs/NoInput"
+        },
+        "propertyName": "type"
+      },
+      "oneOf": [
+        {
+          "$ref": "#/$defs/ChatInput"
+        },
+        {
+          "$ref": "#/$defs/FormInput"
+        },
+        {
+          "$ref": "#/$defs/NoInput"
+        }
+      ],
+      "title": "Input"
+    },
+    "output": {
+      "$ref": "#/$defs/Output"
+    },
+    "trigger": {
+      "discriminator": {
+        "mapping": {
+          "interactive": "#/$defs/InteractiveTrigger",
+          "scheduled": "#/$defs/ScheduledTrigger"
+        },
+        "propertyName": "type"
+      },
+      "oneOf": [
+        {
+          "$ref": "#/$defs/InteractiveTrigger"
+        },
+        {
+          "$ref": "#/$defs/ScheduledTrigger"
+        }
+      ],
+      "title": "Trigger"
+    },
+    "connections": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Connections"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "variables": {
+      "anyOf": [
+        {
+          "additionalProperties": {
+            "$ref": "#/$defs/Variable"
+          },
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Variables"
+    },
+    "environments": {
+      "anyOf": [
+        {
+          "additionalProperties": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Environments"
+    },
+    "secrets_required": {
+      "anyOf": [
+        {
+          "items": {
+            "$ref": "#/$defs/SecretRequirement"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Secrets Required"
+    }
+  },
+  "required": [
+    "spec_version",
+    "minimum_dialekt_version",
+    "metadata",
+    "model",
+    "system_prompt",
+    "capabilities",
+    "autonomy",
+    "input",
+    "output",
+    "trigger"
+  ],
+  "title": "AgentManifest",
+  "type": "object"
+}
