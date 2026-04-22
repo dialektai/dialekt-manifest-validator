@@ -2,7 +2,7 @@ spec_version: "1.0.1"
 minimum_dialekt_version: "1.0.0"
 
 metadata:
-  id: "2c4d5e6f-7890-1234-5678-abcdef567890"
+  id: "b0971d56-092b-4ce4-8c39-9b30a2688439"
   name: "Instagram Carousel Generator"
   description: "Creates multi-slide Instagram carousels as PNG images"
   version: "1.0.0"

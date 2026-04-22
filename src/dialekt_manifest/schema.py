@@ -61,15 +61,15 @@ class Metadata(BaseModel):
     @field_validator("id")
     @classmethod
     def validate_uuid(cls, v: str) -> str:
-        # Accept any valid UUID format (8-4-4-4-12 hex), not strictly v4
-        # The spec says "UUID v4" but the examples include UUIDs with non-standard
-        # variant bits — we validate format only.
-        uuid_re = re.compile(
-            r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$',
-            re.IGNORECASE
-        )
-        if not uuid_re.match(v):
-            raise ValueError(f"Invalid UUID v4: {v}")
+        try:
+            parsed = uuid.UUID(v)
+        except ValueError:
+            raise ValueError(f"Invalid UUID format: {v!r}")
+        if parsed.version != 4:
+            raise ValueError(
+                f"metadata.id must be UUID v4 (got version {parsed.version}). "
+                f"Generate one with: python3 -c \"import uuid; print(uuid.uuid4())\""
+            )
         return v
 
     @field_validator("version")

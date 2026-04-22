@@ -2,7 +2,7 @@ spec_version: "1.0.1"
 minimum_dialekt_version: "1.0.0"
 
 metadata:
-  id: "9a8b7c6d-5432-1098-7654-fedcba098765"
+  id: "add9891b-6e9a-427a-b2ff-a64c61ef389f"
   name: "Daily Sales Report"
   description: "Generates Excel sales report every morning at 9 AM"
   version: "1.0.0"

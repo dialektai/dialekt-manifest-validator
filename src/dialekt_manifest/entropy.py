@@ -28,37 +28,42 @@ def is_whitelisted(s: str) -> bool:
     return any(re.match(pat, s, re.IGNORECASE) for pat in WHITELIST_PATTERNS)
 
 
-def is_ascii_printable(s: str) -> bool:
-    """Return True if string contains only ASCII printable characters (no spaces)."""
-    return all(0x21 <= ord(c) <= 0x7E for c in s)
+def is_ascii_token(s: str) -> bool:
+    """Return True if every character is ASCII printable (no spaces, no control chars)."""
+    return bool(s) and all(0x21 <= ord(c) <= 0x7E for c in s)
 
 
 def scan_entropy(raw_yaml: str) -> list[Issue]:
+    """Scan YAML content for high-entropy ASCII tokens that may be secrets.
+
+    Scans token-by-token so that an API key embedded inside a Russian sentence
+    (e.g. "Используй ключ sk-proj-aBc123..." ) is still caught — the Cyrillic
+    words are skipped individually, but the ASCII token is checked.
+    """
     issues: list[Issue] = []
     lines = raw_yaml.splitlines()
 
     for line_no, line in enumerate(lines, start=1):
-        # Extract string values from YAML lines (after : or as standalone)
-        for m in re.finditer(r'["\']([^"\']{30,})["\']|:\s*([^\s#][^\n#]{29,})', line):
-            candidate = (m.group(1) or m.group(2) or "").strip()
-            if len(candidate) < MIN_LENGTH:
+        flagged = False
+        for token in line.split():
+            # Only check pure-ASCII tokens — Cyrillic/CJK/etc. naturally score high
+            if not is_ascii_token(token) or len(token) < MIN_LENGTH:
                 continue
-            # Only check entropy on ASCII strings — secrets/tokens are always ASCII.
-            # Non-ASCII (Cyrillic, CJK, etc.) text has naturally high character entropy
-            # that is not indicative of secrets.
-            if not is_ascii_printable(candidate):
+            if is_whitelisted(token):
                 continue
-            if is_whitelisted(candidate):
-                continue
-            entropy = shannon_entropy(candidate)
+            entropy = shannon_entropy(token)
             if entropy >= ENTROPY_THRESHOLD:
                 issues.append(Issue(
                     severity=Severity.WARNING,
                     code=ErrorCode.SECURITY_HIGH_ENTROPY,
-                    message=f"High-entropy string detected at line {line_no} (entropy={entropy:.2f})",
+                    message=f"High-entropy string detected at line {line_no} (entropy={entropy:.2f}): {token[:20]}...",
                     line=line_no,
-                    suggestion="If this is a secret, move it to `secrets_required` and store in OS keychain. If not, this warning can be ignored.",
+                    suggestion=(
+                        "If this is a secret, move it to `secrets_required` and store in OS keychain. "
+                        "If it's a legitimate value, this warning can be ignored."
+                    ),
                 ))
-                break  # one warning per line
+                flagged = True
+                break  # one warning per line is enough
 
     return issues

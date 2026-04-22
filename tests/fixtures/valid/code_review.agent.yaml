@@ -2,7 +2,7 @@ spec_version: "1.0.1"
 minimum_dialekt_version: "1.0.0"
 
 metadata:
-  id: "4e5f6a7b-8901-2345-6789-abcdef123456"
+  id: "b400a3f4-d2f7-4433-8950-3aee9b93682f"
   name: "Code Review Assistant"
   description: "Senior-level code review on git diff"
   version: "1.0.0"
