@@ -13,7 +13,14 @@ CAPABILITY_GROUPS = {
     "database_write", "shell_execute", "network", "browser", "screen_capture"
 }
 
-AUTONOMY_LEVELS = ["review-only", "ask-before-write", "autonomous", "sandbox-only"]
+AUTONOMY_LEVELS = [
+    "review-only", "ask-before-write", "autonomous", "sandbox-only",
+    # "manual": every action requires user confirmation. Semantically
+    # distinct from "review-only" (shows reply, no mutation) and
+    # "ask-before-write" (confirm writes, free reads) — "manual" asks
+    # before every read too. Added 2026-04-23 to match Builder Wizard UI.
+    "manual",
+]
 
 CONNECTION_TYPES = {"postgres", "mysql", "clickhouse", "mcp-server", "http-api"}
 CONNECTION_ROLES = {"readonly", "readwrite", "admin"}
