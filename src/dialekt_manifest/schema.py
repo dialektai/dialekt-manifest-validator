@@ -6,11 +6,16 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 import semver
 
 
-SUPPORTED_SPEC_VERSIONS = {"1.0.0", "1.0.1"}
+SUPPORTED_SPEC_VERSIONS = {"1.0.0", "1.0.1", "1.1.0"}
 
 CAPABILITY_GROUPS = {
     "filesystem_read", "filesystem_write", "database_read",
-    "database_write", "shell_execute", "network", "browser", "screen_capture"
+    "database_write", "shell_execute", "network", "browser", "screen_capture",
+    # Added in spec 1.1.0 alongside the mcp_servers block. An agent that
+    # consumes external MCP servers must declare this capability so the
+    # host can refuse agents that try to smuggle in MCP access without
+    # asking for the permission.
+    "mcp_tools",
 }
 
 AUTONOMY_LEVELS = [
@@ -391,6 +396,81 @@ class SecretRequirement(BaseModel):
     required: bool = True
 
 
+# ── MCP servers (spec 1.1.0) ──────────────────────────────────────────────────
+
+class MCPBearerAuth(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    type: Literal["bearer"]
+    token: str = Field(min_length=1)
+
+
+# Open for future auth schemes (OAuth in M3). Today only bearer is valid.
+MCPAuth = Annotated[MCPBearerAuth, Field(discriminator="type")]
+
+
+class MCPServerSpec(BaseModel):
+    """One entry of the manifest's top-level ``mcp_servers`` list.
+
+    Flat shape (transport field as discriminator tag, not a nested
+    object) so the YAML reads naturally — same style as ``input`` and
+    ``trigger``. Cross-field legality is enforced post-parse via a
+    model validator, which lets us ship one schema shape while
+    keeping stdio / http invariants strict.
+    """
+    model_config = ConfigDict(extra="forbid")
+
+    name: str = Field(min_length=1, max_length=40, pattern=r"^[a-z0-9][a-z0-9_-]*$")
+    description: Optional[str] = Field(None, max_length=200)
+    transport: Literal["stdio", "http"]
+
+    # stdio-only fields
+    command: Optional[list[str]] = None
+    env: Optional[dict[str, str]] = None
+
+    # http-only fields
+    url: Optional[str] = None
+    auth: Optional[MCPAuth] = None
+
+    # shared
+    timeout_seconds: float = Field(default=30.0, gt=0.0)
+
+    # Scoping
+    allow_tools: Optional[list[str]] = None
+    deny_tools: list[str] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def _enforce_transport_fields(self) -> "MCPServerSpec":
+        if self.transport == "stdio":
+            if not self.command or len(self.command) == 0:
+                raise ValueError(
+                    "mcp_servers[stdio]: `command` is required and must be a non-empty list"
+                )
+            if self.url is not None:
+                raise ValueError(
+                    "mcp_servers[stdio]: `url` must not be set on stdio transport"
+                )
+            if self.auth is not None:
+                raise ValueError(
+                    "mcp_servers[stdio]: `auth` must not be set on stdio transport; "
+                    "use `env` for credentials"
+                )
+        elif self.transport == "http":
+            if not self.url:
+                raise ValueError(
+                    "mcp_servers[http]: `url` is required"
+                )
+            if self.command is not None:
+                raise ValueError(
+                    "mcp_servers[http]: `command` must not be set on http transport"
+                )
+            if self.env is not None:
+                raise ValueError(
+                    "mcp_servers[http]: `env` must not be set on http transport; "
+                    "use `auth` for credentials"
+                )
+        return self
+
+
 class AgentManifest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -408,6 +488,10 @@ class AgentManifest(BaseModel):
     variables: Optional[dict[str, Variable]] = None
     environments: Optional[dict[str, dict[str, object]]] = None
     secrets_required: Optional[list[SecretRequirement]] = None
+    # Added in spec 1.1.0. External MCP servers the agent will consume.
+    # Requires ``mcp_tools`` capability group when non-empty; validator
+    # enforces this semantically (see validator.py).
+    mcp_servers: Optional[list[MCPServerSpec]] = None
 
     @field_validator("spec_version")
     @classmethod

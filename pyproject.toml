@@ -4,8 +4,8 @@ build-backend = "hatchling.build"
 
 [project]
 name = "dialekt-manifest-validator"
-version = "0.2.0"
-description = "Validator for dialekt agent manifests (spec v1.0.1)"
+version = "0.3.0"
+description = "Validator for dialekt agent manifests (spec v1.0.x — v1.1.0)"
 readme = "README.md"
 requires-python = ">=3.10"
 keywords = ["dialekt", "manifest", "validator", "agent"]

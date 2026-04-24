@@ -7,7 +7,12 @@ import yaml
 from pydantic import ValidationError
 
 from .errors import ErrorCode, Issue, Severity, ValidationResult
-from .schema import AgentManifest, SUPPORTED_SPEC_VERSIONS, AUTONOMY_LEVELS
+from .schema import (
+    AgentManifest,
+    AUTONOMY_LEVELS,
+    SUPPORTED_SPEC_VERSIONS,
+    SecretRequirement,
+)
 from .security import scan_content
 from .entropy import scan_entropy
 from .paths import check_path_safety
@@ -91,6 +96,7 @@ class ManifestValidator:
         _check_output_streaming(manifest, result)
         _check_output_path(manifest, result)
         _check_cron_frequency(manifest, result)
+        _check_mcp_servers(manifest, result)
 
         # 6. Apply strict mode: promote warnings to errors
         if self.strict:
@@ -250,3 +256,114 @@ def _check_cron_frequency(manifest: AgentManifest, result: ValidationResult) -> 
             )
     except Exception:
         pass  # croniter already validated by Pydantic
+
+
+# ── mcp_servers (spec 1.1.0) ─────────────────────────────────────────────────
+
+_MCP_SECRET_REF = re.compile(r'\$\{secrets\.([a-zA-Z0-9_.-]+)\}')
+
+
+def _check_mcp_servers(manifest: AgentManifest, result: ValidationResult) -> None:
+    """Three jobs, all spec-1.1.0-scoped:
+
+    1. Version gate — ``mcp_servers`` is only legal when
+       ``spec_version`` is 1.1.0 or newer.
+    2. Capability gate — if ``mcp_servers`` is non-empty, the
+       manifest must declare ``mcp_tools`` in ``capabilities.groups``.
+    3. Secret auto-extension — every ``${secrets.NAME}`` reference in
+       ``mcp_servers[].env`` values and ``mcp_servers[].auth.token``
+       is appended to ``manifest.secrets_required`` (if not already
+       present), so the host's existing secret-onboarding UX works
+       without code changes. We also warn so manifest authors know
+       to declare them explicitly next time.
+    """
+    if manifest.mcp_servers is None:
+        return  # nothing to check
+
+    if not manifest.mcp_servers:
+        # Present but empty list — no servers, no capability required,
+        # but we still want to flag it as useless noise in the manifest.
+        result.add_warning(
+            ErrorCode.SEMANTIC_MCP_SERVERS_VERSION,
+            "mcp_servers is present but empty — omit the field entirely",
+            path="mcp_servers",
+        )
+        return
+
+    # 1. Version gate.
+    if not _spec_version_supports_mcp(manifest.spec_version):
+        result.add_error(
+            ErrorCode.SEMANTIC_MCP_SERVERS_VERSION,
+            f"mcp_servers requires spec_version >= 1.1.0 (got {manifest.spec_version!r})",
+            path="mcp_servers",
+            suggestion='Bump spec_version to "1.1.0", or remove the mcp_servers block.',
+        )
+
+    # 2. Capability gate.
+    if "mcp_tools" not in manifest.capabilities.groups:
+        result.add_error(
+            ErrorCode.SEMANTIC_MCP_CAPABILITY_MISSING,
+            "mcp_servers is non-empty but capabilities.groups is missing 'mcp_tools'",
+            path="capabilities.groups",
+            suggestion="Add 'mcp_tools' to capabilities.groups so the host can gate the permission.",
+        )
+
+    # 3. Secret auto-extension.
+    declared = {s.name for s in (manifest.secrets_required or [])}
+    discovered: set[str] = set()
+    for srv in manifest.mcp_servers:
+        for raw in (srv.env or {}).values():
+            if not isinstance(raw, str):
+                continue
+            for m in _MCP_SECRET_REF.finditer(raw):
+                discovered.add(m.group(1))
+        auth = srv.auth
+        token = getattr(auth, "token", None) if auth is not None else None
+        if isinstance(token, str):
+            for m in _MCP_SECRET_REF.finditer(token):
+                discovered.add(m.group(1))
+
+    missing = sorted(discovered - declared)
+    if missing:
+        extended = list(manifest.secrets_required or [])
+        for name in missing:
+            extended.append(
+                SecretRequirement(
+                    name=name,
+                    description=(
+                        "Auto-added from mcp_servers reference — describe "
+                        "in secrets_required explicitly for a cleaner manifest."
+                    ),
+                    required=True,
+                )
+            )
+        manifest.secrets_required = extended
+        result.add_warning(
+            ErrorCode.SEMANTIC_MCP_SECRET_AUTO_ADDED,
+            (
+                "mcp_servers references secrets not declared in secrets_required; "
+                f"auto-added: {missing}"
+            ),
+            path="secrets_required",
+            suggestion=(
+                "Declare these in secrets_required explicitly (with human-readable "
+                "descriptions) so the host's onboarding UX can show clear prompts."
+            ),
+        )
+
+
+def _spec_version_supports_mcp(spec_version: str) -> bool:
+    """Return True if ``spec_version`` is 1.1.0 or newer.
+
+    Uses semver parsing rather than string compare so 1.10.0 (if that
+    ever ships) doesn't look smaller than 1.2.0.
+    """
+    try:
+        import semver
+        v = semver.Version.parse(spec_version)
+        return (v.major, v.minor) >= (1, 1)
+    except Exception:
+        # If parsing fails for any reason, fall back to deny — the
+        # schema layer has already enforced "semver-ish" before we
+        # get here.
+        return False

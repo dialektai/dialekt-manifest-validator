@@ -37,6 +37,10 @@ class ErrorCode(str, Enum):
     SEMANTIC_SPEC_VERSION = "semantic.spec_version"
     SEMANTIC_FORM_NO_FIELDS = "semantic.form_no_fields"
     SEMANTIC_DROPDOWN_NO_OPTIONS = "semantic.dropdown_no_options"
+    # Spec 1.1.0: mcp_servers block
+    SEMANTIC_MCP_SERVERS_VERSION = "semantic.mcp_servers_version"
+    SEMANTIC_MCP_CAPABILITY_MISSING = "semantic.mcp_capability_missing"
+    SEMANTIC_MCP_SECRET_AUTO_ADDED = "semantic.mcp_secret_auto_added"
     # Security errors
     SECURITY_PASSWORD = "security.password"
     SECURITY_OPENAI_KEY = "security.openai_key"
